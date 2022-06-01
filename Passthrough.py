@@ -4,22 +4,25 @@ import os
 import sys
 import errno
 
-from Passthrough import FUSE, FuseOSError, Operations
+from fuse import FUSE, FuseOSError, Operations
 
 
 class Passthrough(Operations):
   def __init__(self, root):
-      self.root = root
+    self.root = root
 
   # Helpers
+  # =======
+
   def _full_path(self, partial):
     if partial.startswith("/"):
         partial = partial[1:]
     path = os.path.join(self.root, partial)
     return path
 
-
   # Filesystem methods
+  # ==================
+
   def access(self, path, mode):
     full_path = self._full_path(path)
     if not os.access(full_path, mode):
@@ -74,7 +77,7 @@ class Passthrough(Operations):
         'f_frsize', 'f_namemax'))
 
   def unlink(self, path):
-    return os.unlink(self._full_path(path))
+      return os.unlink(self._full_path(path))
 
   def symlink(self, name, target):
     return os.symlink(name, self._full_path(target))
@@ -88,42 +91,42 @@ class Passthrough(Operations):
   def utimens(self, path, times=None):
     return os.utime(self._full_path(path), times)
 
-
   # File methods
+  # ============
+
   def open(self, path, flags):
-      full_path = self._full_path(path)
-      return os.open(full_path, flags)
+    full_path = self._full_path(path)
+    return os.open(full_path, flags)
 
   def create(self, path, mode, fi=None):
-      full_path = self._full_path(path)
-      return os.open(full_path, os.O_WRONLY | os.O_CREAT, mode)
+    full_path = self._full_path(path)
+    return os.open(full_path, os.O_WRONLY | os.O_CREAT, mode)
 
   def read(self, path, length, offset, fh):
-      os.lseek(fh, offset, os.SEEK_SET)
-      return os.read(fh, length)
+    os.lseek(fh, offset, os.SEEK_SET)
+    return os.read(fh, length)
 
   def write(self, path, buf, offset, fh):
-      os.lseek(fh, offset, os.SEEK_SET)
-      return os.write(fh, buf)
+    os.lseek(fh, offset, os.SEEK_SET)
+    return os.write(fh, buf)
 
   def truncate(self, path, length, fh=None):
-      full_path = self._full_path(path)
-      with open(full_path, 'r+') as f:
-          f.truncate(length)
+    full_path = self._full_path(path)
+    with open(full_path, 'r+') as f:
+        f.truncate(length)
 
   def flush(self, path, fh):
-      return os.fsync(fh)
+    return os.fsync(fh)
 
   def release(self, path, fh):
-      return os.close(fh)
+    return os.close(fh)
 
   def fsync(self, path, fdatasync, fh):
-      return self.flush(path, fh)
-
+    return self.flush(path, fh)
 
 
 def main(mountpoint, root):
     FUSE(Passthrough(root), mountpoint, nothreads=True, foreground=True)
 
 if __name__ == '__main__':
-   main(sys.argv[2], sys.argv[1])
+    main(sys.argv[2], sys.argv[1])
