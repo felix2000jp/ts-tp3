@@ -11,18 +11,16 @@ class Passthrough(Operations):
   def __init__(self, root):
     self.root = root
 
-  # Helpers
-  # =======
 
+  # Helpers
   def _full_path(self, partial):
     if partial.startswith("/"):
         partial = partial[1:]
     path = os.path.join(self.root, partial)
     return path
 
-  # Filesystem methods
-  # ==================
 
+  # Filesystem methods
   def access(self, path, mode):
     full_path = self._full_path(path)
     if not os.access(full_path, mode):
@@ -91,9 +89,8 @@ class Passthrough(Operations):
   def utimens(self, path, times=None):
     return os.utime(self._full_path(path), times)
 
-  # File methods
-  # ============
 
+  # File methods
   def open(self, path, flags):
     full_path = self._full_path(path)
     return os.open(full_path, flags)
@@ -123,6 +120,7 @@ class Passthrough(Operations):
 
   def fsync(self, path, fdatasync, fh):
     return self.flush(path, fh)
+
 
 
 def main(mountpoint, root):
