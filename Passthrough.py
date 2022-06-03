@@ -4,7 +4,7 @@ import os
 import sys
 import errno
 
-from fuse import FUSE, FuseOSError, Operations
+from fuse import FUSE, FuseOSError, Operations, fuse_get_context
 
 
 class Passthrough(Operations):
@@ -92,14 +92,23 @@ class Passthrough(Operations):
 
   # File methods
   def open(self, path, flags):
+    uid, gid, pid = fuse_get_context()
+    print('open: ', uid, gid, pid)
+    full_path = self._full_path(path)
+    print(os.stat(full_path))
+    print(os.access(full_path, os.R_OK))
     full_path = self._full_path(path)
     return os.open(full_path, flags)
 
   def create(self, path, mode, fi=None):
+    uid, gid, pid = fuse_get_context()
+    print('creat: ', uid, gid, pid)
     full_path = self._full_path(path)
     return os.open(full_path, os.O_WRONLY | os.O_CREAT, mode)
 
   def read(self, path, length, offset, fh):
+    uid, gid, pid = fuse_get_context()
+    print('read: ', uid, gid, pid)
     os.lseek(fh, offset, os.SEEK_SET)
     return os.read(fh, length)
 
