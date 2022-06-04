@@ -1,5 +1,4 @@
 from __future__ import with_statement
-
 import os
 import sys
 import errno
@@ -15,7 +14,7 @@ class Passthrough(Operations):
   # Helpers
   def _full_path(self, partial):
     if partial.startswith("/"):
-        partial = partial[1:]
+      partial = partial[1:]
     path = os.path.join(self.root, partial)
     return path
 
@@ -24,7 +23,7 @@ class Passthrough(Operations):
   def access(self, path, mode):
     full_path = self._full_path(path)
     if not os.access(full_path, mode):
-        raise FuseOSError(errno.EACCES)
+      raise FuseOSError(errno.EACCES)
 
   def chmod(self, path, mode):
     full_path = self._full_path(path)
@@ -37,8 +36,7 @@ class Passthrough(Operations):
   def getattr(self, path, fh=None):
     full_path = self._full_path(path)
     st = os.lstat(full_path)
-    return dict((key, getattr(st, key)) for key in ('st_atime', 'st_ctime',
-                  'st_gid', 'st_mode', 'st_mtime', 'st_nlink', 'st_size', 'st_uid'))
+    return dict((key, getattr(st, key)) for key in ('st_atime', 'st_ctime', 'st_gid', 'st_mode', 'st_mtime', 'st_nlink', 'st_size', 'st_uid'))
 
   def readdir(self, path, fh):
     full_path = self._full_path(path)
@@ -133,7 +131,7 @@ class Passthrough(Operations):
 
 
 def main(mountpoint, root):
-    FUSE(Passthrough(root), mountpoint, nothreads=True, foreground=True)
+    FUSE(Passthrough(root), mountpoint, nothreads=True, foreground=True, **{'allow_other': True})
 
 if __name__ == '__main__':
     main(sys.argv[2], sys.argv[1])
