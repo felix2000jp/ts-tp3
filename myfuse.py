@@ -2,6 +2,7 @@ from distutils.log import INFO
 import os
 import sys
 import errno
+from tokenize import group
 from fuse import FUSE, FuseOSError, Operations, fuse_get_context
 import grp, pwd 
 import logging
@@ -20,17 +21,18 @@ class FileSystem(Operations):
       partial = partial[1:]
     return os.path.join(self.root, partial)
 
-  def __logs_open_handler(self):
-    uid, gid, pid = fuse_get_context()
-    print('open: ', uid, gid, pid)
-    print(grp.getgrnam(gid).gr_name)
+  def __logs_handler(self):
+    uid, gid, _ = fuse_get_context()
+    group_name = grp.getgrgid(gid).gr_name
+    user_name = pwd.getpwuid(uid).pw_name
+    return user_name, group_name
 
 
   # Clean the resources used by the filesystem. It is used when the we exit the program.  
   def destroy(self, path):
     pass
 
-  
+
   # Access a file
   def access(self, path, mode):
     full_path = self.__full_path(path)
@@ -92,23 +94,29 @@ class FileSystem(Operations):
 
   # Open a file.
   def open(self, path, flags):
-    logging.info('your text goes here')
+    user_name, group_name = self.__logs_handler()
+    logging.info(" USER " + user_name + " GROUP " + group_name + " OPEN " + path[1:])
     full_path = self.__full_path(path)
     return os.open(full_path, flags)
   
   # Create a file.
   def create(self, path, mode, fi=None):
+    user_name, group_name = self.__logs_handler()
+    logging.info(" USER " + user_name + " GROUP " + group_name + " CREATE " + path[1:])
     full_path = self.__full_path(path)
     return os.open(full_path, os.O_WRONLY | os.O_CREAT, mode)
   
   # Read a file.
   def read(self, path, size, offset, fh):
+    user_name, group_name = self.__logs_handler()
+    logging.info(" USER " + user_name + " GROUP " + group_name + " READ " + path[1:])
     os.lseek(fh, offset, os.SEEK_SET)
     return os.read(fh, size)
 
   # Write in a file.
   def write(self, path, data, offset, fh):
-
+    user_name, group_name = self.__logs_handler()
+    logging.info(" USER " + user_name + " GROUP " + group_name + " WRITE " + path[1:])
     os.lseek(fh, offset, os.SEEK_SET)
     return os.write(fh, data)
 
