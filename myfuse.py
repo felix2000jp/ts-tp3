@@ -2,7 +2,8 @@ import os
 import sys
 import errno
 from fuse import FUSE, FuseOSError, Operations, fuse_get_context
-
+import grp, pwd 
+import logging
 class FileSystem(Operations):
   # Constructor to the source folder.
   def __init__(self, root):
@@ -11,8 +12,8 @@ class FileSystem(Operations):
     # quando é que se escreve. Se quiseres ter um por ficheiro
     # como o Dani muda isto. Se ignorares este comentário vais
     # levar na cabeça.
-    self.logs = open("logs.txt", "w")
-  
+    self.logs = logging.basicConfig(filename="log.log", level=logging.INFO)
+
 
   # Returns the current full path for the mouted file system.
   def __full_path(self, partial):
@@ -23,6 +24,7 @@ class FileSystem(Operations):
   def __logs_open_handler(self):
     uid, gid, pid = fuse_get_context()
     print('open: ', uid, gid, pid)
+    print(grp.getgrnam(gid).gr_name)
 
 
 
@@ -95,7 +97,9 @@ class FileSystem(Operations):
 
   # Open a file.
   def open(self, path, flags):
-    self.logs.write("open yo\n")
+    logging.info('your text goes here')
+    logging.error('your text goes here')
+    logging.debug('your text goes here')
     full_path = self.__full_path(path)
     return os.open(full_path, flags)
   
@@ -111,6 +115,7 @@ class FileSystem(Operations):
 
   # Write in a file.
   def write(self, path, data, offset, fh):
+
     os.lseek(fh, offset, os.SEEK_SET)
     return os.write(fh, data)
 
@@ -135,6 +140,7 @@ class FileSystem(Operations):
 
 
 def main(mountpoint, root):
+
     FUSE(FileSystem(root), mountpoint, nothreads=True, foreground=True, **{'allow_other': True, 'default_permissions': True} )
 
 if __name__ == '__main__':
