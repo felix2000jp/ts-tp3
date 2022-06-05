@@ -1,18 +1,17 @@
+from distutils.log import INFO
 import os
 import sys
 import errno
 from fuse import FUSE, FuseOSError, Operations, fuse_get_context
 import grp, pwd 
 import logging
+
+
 class FileSystem(Operations):
   # Constructor to the source folder.
   def __init__(self, root):
     self.root = root
-    # Tou a criar um fincheiro de logs para tu só para testar 
-    # quando é que se escreve. Se quiseres ter um por ficheiro
-    # como o Dani muda isto. Se ignorares este comentário vais
-    # levar na cabeça.
-    self.logs = logging.basicConfig(filename="log.log", level=logging.INFO)
+    self.logs = logging.basicConfig(filename="log.log", format='%(asctime)s %(message)s', level=logging.INFO)
 
 
   # Returns the current full path for the mouted file system.
@@ -27,14 +26,11 @@ class FileSystem(Operations):
     print(grp.getgrnam(gid).gr_name)
 
 
-
   # Clean the resources used by the filesystem. It is used when the we exit the program.  
   def destroy(self, path):
-    self.logs.close()
     pass
+
   
-
-
   # Access a file
   def access(self, path, mode):
     full_path = self.__full_path(path)
@@ -49,7 +45,6 @@ class FileSystem(Operations):
 
   # This is essential because it is what makes commands like ls work.
   def readdir(self, path, fh):
-    #print('readdir yo')
     full_path = self.__full_path(path)
     dirents = ['.', '..']
     if os.path.isdir(full_path):
@@ -98,8 +93,6 @@ class FileSystem(Operations):
   # Open a file.
   def open(self, path, flags):
     logging.info('your text goes here')
-    logging.error('your text goes here')
-    logging.debug('your text goes here')
     full_path = self.__full_path(path)
     return os.open(full_path, flags)
   
@@ -140,7 +133,6 @@ class FileSystem(Operations):
 
 
 def main(mountpoint, root):
-
     FUSE(FileSystem(root), mountpoint, nothreads=True, foreground=True, **{'allow_other': True, 'default_permissions': True} )
 
 if __name__ == '__main__':
