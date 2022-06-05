@@ -7,6 +7,11 @@ class FileSystem(Operations):
   # Constructor to the source folder.
   def __init__(self, root):
     self.root = root
+    # Tou a criar um fincheiro de logs para tu só para testar 
+    # quando é que se escreve. Se quiseres ter um por ficheiro
+    # como o Dani muda isto. Se ignorares este comentário vais
+    # levar na cabeça.
+    self.logs = open("logs.txt", "w")
   
 
   # Returns the current full path for the mouted file system.
@@ -15,21 +20,27 @@ class FileSystem(Operations):
       partial = partial[1:]
     return os.path.join(self.root, partial)
 
+  def __logs_open_handler(self):
+    uid, gid, pid = fuse_get_context()
+    print('open: ', uid, gid, pid)
+
+
+
   # Clean the resources used by the filesystem. It is used when the we exit the program.  
   def destroy(self, path):
-    print('destroy yo')
+    self.logs.close()
     pass
+  
+
 
   # Access a file
   def access(self, path, mode):
-    #print('access yo')
     full_path = self.__full_path(path)
     if not os.access(full_path, mode):
       raise FuseOSError(errno.EACCES)
 
   # This fills in the elements of the "stat" structure. Required.
   def getattr(self, path, fh=None):
-    #print('getattr yo')
     full_path = self.__full_path(path)
     st = os.lstat(full_path)
     return dict((key, getattr(st, key)) for key in ('st_atime', 'st_ctime', 'st_gid', 'st_mode', 'st_mtime', 'st_nlink', 'st_size', 'st_uid'))
@@ -46,19 +57,16 @@ class FileSystem(Operations):
 
   # Change files permissions.
   def chmod(self, path, mode):
-    print('chmod yo')
     full_path = self.__full_path(path)
     return os.chmod(full_path, mode)
 
   # Change files ownership (we need to look at this).
   def chown(self, path, uid, gid):
-    print('chown yo')
     full_path = self.__full_path(path)
     return os.chown(full_path, uid, gid)
 
   # Not really sure why we need this.
   def readlink(self, path):
-    print('readlink yo')
     pathname = os.readlink(self.__full_path(path))
     if pathname.startswith("/"):
       # Path name is absolute, sanitize it.
@@ -68,22 +76,18 @@ class FileSystem(Operations):
   
   # Not really sure why we need this.
   def symlink(self, name, target):
-    print('symlink yo')
     return os.symlink(name, self.__full_path(target))
 
   # This deals with files that associate with other files.
   def link(self, target, name):
-    print('link yo')
     return os.link(self.__full_path(target), self._full_path(name))
   
   # Unlinks a file. (can remove).
   def unlink(self, path):
-    print('unlink yo')
     return os.unlink(self.__full_path(path))
 
   # This is for statistics on the filesystem.
   def statfs(self, path):
-    print('statfs yo')
     full_path = self.__full_path(path)
     stv = os.statvfs(full_path)
     return dict((key, getattr(stv, key)) for key in ('f_bavail', 'f_bfree', 'f_blocks', 'f_bsize', 'f_favail', 'f_ffree', 'f_files', 'f_flag', 'f_frsize', 'f_namemax'))
@@ -91,54 +95,41 @@ class FileSystem(Operations):
 
   # Open a file.
   def open(self, path, flags):
-    print(os.access(full_path, os.R_OK))
-    print(os.access(full_path, os.W_OK))
-    #print('open yo')
+    self.logs.write("open yo\n")
     full_path = self.__full_path(path)
     return os.open(full_path, flags)
   
   # Create a file.
   def create(self, path, mode, fi=None):
-    #print('create yo')
     full_path = self.__full_path(path)
     return os.open(full_path, os.O_WRONLY | os.O_CREAT, mode)
   
   # Read a file.
   def read(self, path, size, offset, fh):
-    #print('read yo')
     os.lseek(fh, offset, os.SEEK_SET)
     return os.read(fh, size)
 
   # Write in a file.
   def write(self, path, data, offset, fh):
-    # full_path = self.__full_path(path)
-    # if not os.access(full_path, os.R_OK):
-    #   print('hey')
-    #   raise FuseOSError(errno.EACCES)
-    print('write yo')
     os.lseek(fh, offset, os.SEEK_SET)
     return os.write(fh, data)
 
   # Truncate a file so that it size is exact.
   def truncate(self, path, length, fh=None):
-    print('truncate yo')
     full_path = self.__full_path(path)
     with open(full_path, 'r+') as f:
       f.truncate(length)
 
   # Flush buffered information.
   def flush(self, path, fh):
-    #print('flush yo')
     return os.fsync(fh)
 
   # Releasing a file (not exactly closing it).
   def release(self, path, fh):
-    #print('realease yo')
     return os.close(fh)
 
   # Flush any dirty information to disk. (Not sure why we need this)
   def fsync(self, path, datasync, fh):
-    #print('fsync yo')
     return self.flush(path, fh)
 
 
