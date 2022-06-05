@@ -3,6 +3,7 @@ import sys
 import errno
 import logging
 import grp, pwd 
+import stat
 from fuse import FUSE, FuseOSError, Operations, fuse_get_context
 
 
@@ -11,7 +12,6 @@ class FileSystem(Operations):
   def __init__(self, root):
     self.root = root
     self.logs = logging.basicConfig(filename="log.log", format='%(asctime)s %(message)s', level=logging.INFO)
-
 
   # Returns the current full path for the mouted file system.
   def __full_path(self, partial):
@@ -24,7 +24,6 @@ class FileSystem(Operations):
     group_name = grp.getgrgid(gid).gr_name
     user_name = pwd.getpwuid(uid).pw_name
     return user_name, group_name
-
 
   # Clean the resources used by the filesystem. It is used when the we exit the program.  
   def destroy(self, path):
@@ -154,13 +153,35 @@ class FileSystem(Operations):
   def fsync(self, path, datasync, fh):
     return self.flush(path, fh)
 
+def permissions_to_unix_name(st):
+    is_dir = 'd' if stat.S_ISDIR(st.st_mode) else '-'
+    dic = {'7':'rwx', '6' :'rw-', '5' : 'r-x', '4':'r--', '0': '---'}
+    perm = str(oct(st.st_mode)[-3:])
+    return is_dir + ''.join(dic.get(x,x) for x in perm)
 
-
+def get_metadata(root):
+  metadata = logging.basicConfig(filename="metadata.log", format='%(message)s', level=logging.INFO)
+  ass = os.walk(root, topdown=True, onerror=None, followlinks=False)
+  for root, dirs, files in ass:
+   for name in files:
+      path = os.path.join(root, name)
+      stat = os.lstat(path)
+      perms = permissions_to_unix_name(stat)
+      owner = pwd.getpwuid(stat.st_uid).pw_name
+      owner_g = grp.getgrgid(stat.st_gid).gr_name
+      logging.info(f"{name} {perms} {owner} {owner_g}")
+   for name in dirs:
+      path = os.path.join(root, name)
+      stat = os.lstat(path)
+      perms = permissions_to_unix_name(stat)
+      logging.info(f"{name} {perms}")
+      
 def main(mountpoint, root):
-    FUSE(FileSystem(root), mountpoint, nothreads=True, foreground=True, **{'allow_other': True, 'default_permissions': True})
+  get_metadata(root)
+  FUSE(FileSystem(root), mountpoint, nothreads=True, foreground=True, **{'allow_other': True, 'default_permissions': True})
 
 if __name__ == '__main__':
-    main(sys.argv[2], sys.argv[1])
+  main(sys.argv[2], sys.argv[1])
 
 
 
