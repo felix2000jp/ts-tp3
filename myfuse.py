@@ -1,11 +1,9 @@
-from distutils.log import INFO
 import os
 import sys
 import errno
-from tokenize import group
-from fuse import FUSE, FuseOSError, Operations, fuse_get_context
-import grp, pwd 
 import logging
+import grp, pwd 
+from fuse import FUSE, FuseOSError, Operations, fuse_get_context
 
 
 class FileSystem(Operations):
@@ -43,7 +41,8 @@ class FileSystem(Operations):
   def getattr(self, path, fh=None):
     full_path = self.__full_path(path)
     st = os.lstat(full_path)
-    return dict((key, getattr(st, key)) for key in ('st_atime', 'st_ctime', 'st_gid', 'st_mode', 'st_mtime', 'st_nlink', 'st_size', 'st_uid'))
+    result = dict((key, getattr(st, key)) for key in ('st_atime', 'st_ctime', 'st_gid', 'st_mode', 'st_mtime', 'st_nlink', 'st_size', 'st_uid'))
+    return result
 
   # This is essential because it is what makes commands like ls work.
   def readdir(self, path, fh):
@@ -63,6 +62,19 @@ class FileSystem(Operations):
   def chown(self, path, uid, gid):
     full_path = self.__full_path(path)
     return os.chown(full_path, uid, gid)
+
+  def mknod(self, path, mode, dev):
+    return os.mknod(self._full_path(path), mode, dev)
+
+  def rmdir(self, path):
+    full_path = self._full_path(path)
+    return os.rmdir(full_path)
+
+  def mkdir(self, path, mode):
+    return os.mkdir(self._full_path(path), mode)
+
+  def utimens(self, path, times=None):
+    return os.utime(self._full_path(path), times)
 
   # Not really sure why we need this.
   def readlink(self, path):
@@ -90,7 +102,7 @@ class FileSystem(Operations):
     full_path = self.__full_path(path)
     stv = os.statvfs(full_path)
     return dict((key, getattr(stv, key)) for key in ('f_bavail', 'f_bfree', 'f_blocks', 'f_bsize', 'f_favail', 'f_ffree', 'f_files', 'f_flag', 'f_frsize', 'f_namemax'))
-  
+
 
   # Open a file.
   def open(self, path, flags):
@@ -115,6 +127,7 @@ class FileSystem(Operations):
 
   # Write in a file.
   def write(self, path, data, offset, fh):
+    print("write")
     user_name, group_name = self.__logs_handler()
     logging.info(" USER " + user_name + " GROUP " + group_name + " WRITE " + path[1:])
     os.lseek(fh, offset, os.SEEK_SET)
@@ -132,7 +145,10 @@ class FileSystem(Operations):
 
   # Releasing a file (not exactly closing it).
   def release(self, path, fh):
+    user_name, group_name = self.__logs_handler()
+    logging.info(" USER " + user_name + " GROUP " + group_name + " RELEASE " + path[1:] + "\n")
     return os.close(fh)
+
 
   # Flush any dirty information to disk. (Not sure why we need this)
   def fsync(self, path, datasync, fh):
@@ -141,7 +157,7 @@ class FileSystem(Operations):
 
 
 def main(mountpoint, root):
-    FUSE(FileSystem(root), mountpoint, nothreads=True, foreground=True, **{'allow_other': True, 'default_permissions': True} )
+    FUSE(FileSystem(root), mountpoint, nothreads=True, foreground=True, **{'allow_other': True, 'default_permissions': True})
 
 if __name__ == '__main__':
     main(sys.argv[2], sys.argv[1])
