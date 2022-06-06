@@ -1,5 +1,6 @@
 import os
 import sys
+import hashlib
 import errno
 import logging
 import grp, pwd 
@@ -11,7 +12,17 @@ class FileSystem(Operations):
   # Constructor to the source folder.
   def __init__(self, root):
     self.root = root
-    self.logs = logging.basicConfig(filename="log.log", format='%(asctime)s %(message)s', level=logging.INFO)
+    
+    self.logs = logging.getLogger('log')
+    formatter = logging.Formatter(fmt="%(asctime)s %(message)s",
+                              datefmt="%a, %d %b %Y %H:%M:%S")
+
+    file_handler = logging.FileHandler("logs.log")
+    file_handler.setFormatter(formatter)
+
+    self.logs.setLevel(logging.INFO)
+    self.logs.addHandler(file_handler)
+    #self.logs.basicConfig(filename="log.log", format='%(asctime)s %(message)s', level=logging.INFO)
 
   # Returns the current full path for the mouted file system.
   def __full_path(self, partial):
@@ -25,15 +36,18 @@ class FileSystem(Operations):
     user_name = pwd.getpwuid(uid).pw_name
     return user_name, group_name
 
+
+
   # Clean the resources used by the filesystem. It is used when the we exit the program.  
   def destroy(self, path):
     pass
 
-
   # Access a file
   def access(self, path, mode):
+    print('acedou', path, mode)
     full_path = self.__full_path(path)
     if not os.access(full_path, mode):
+      print('ola')
       raise FuseOSError(errno.EACCES)
 
   # This fills in the elements of the "stat" structure. Required.
@@ -105,22 +119,27 @@ class FileSystem(Operations):
 
   # Open a file.
   def open(self, path, flags):
+    
     user_name, group_name = self.__logs_handler()
-    logging.info(" USER " + user_name + " GROUP " + group_name + " OPEN " + path[1:])
+    self.logs.info(" USER " + user_name + " GROUP " + group_name + " OPEN " + path[1:])
     full_path = self.__full_path(path)
+    print(os.access(full_path, os.R_OK))
+    print(os.access(full_path, os.W_OK))
+    st = os.lstat(full_path)
+    print(permissions_to_unix_name(st))
     return os.open(full_path, flags)
   
   # Create a file.
   def create(self, path, mode, fi=None):
     user_name, group_name = self.__logs_handler()
-    logging.info(" USER " + user_name + " GROUP " + group_name + " CREATE " + path[1:])
+    self.logs.info(" USER " + user_name + " GROUP " + group_name + " CREATE " + path[1:])
     full_path = self.__full_path(path)
     return os.open(full_path, os.O_WRONLY | os.O_CREAT, mode)
   
   # Read a file.
   def read(self, path, size, offset, fh):
     user_name, group_name = self.__logs_handler()
-    logging.info(" USER " + user_name + " GROUP " + group_name + " READ " + path[1:])
+    self.logs.info(" USER " + user_name + " GROUP " + group_name + " READ " + path[1:])
     os.lseek(fh, offset, os.SEEK_SET)
     return os.read(fh, size)
 
@@ -128,7 +147,7 @@ class FileSystem(Operations):
   def write(self, path, data, offset, fh):
     print("write")
     user_name, group_name = self.__logs_handler()
-    logging.info(" USER " + user_name + " GROUP " + group_name + " WRITE " + path[1:])
+    self.logs.info(" USER " + user_name + " GROUP " + group_name + " WRITE " + path[1:])
     os.lseek(fh, offset, os.SEEK_SET)
     return os.write(fh, data)
 
@@ -145,7 +164,7 @@ class FileSystem(Operations):
   # Releasing a file (not exactly closing it).
   def release(self, path, fh):
     user_name, group_name = self.__logs_handler()
-    logging.info(" USER " + user_name + " GROUP " + group_name + " RELEASE " + path[1:] + "\n")
+    self.logs.info(" USER " + user_name + " GROUP " + group_name + " RELEASE " + path[1:] + "\n")
     return os.close(fh)
 
 
@@ -159,26 +178,59 @@ def permissions_to_unix_name(st):
     perm = str(oct(st.st_mode)[-3:])
     return is_dir + ''.join(dic.get(x,x) for x in perm)
 
-def get_metadata(root):
-  metadata = logging.basicConfig(filename="metadata.log", format='%(message)s', level=logging.INFO)
-  ass = os.walk(root, topdown=True, onerror=None, followlinks=False)
-  for root, dirs, files in ass:
-   for name in files:
-      path = os.path.join(root, name)
-      stat = os.lstat(path)
-      perms = permissions_to_unix_name(stat)
-      owner = pwd.getpwuid(stat.st_uid).pw_name
-      owner_g = grp.getgrgid(stat.st_gid).gr_name
-      logging.info(f"{name} {perms} {owner} {owner_g}")
-   for name in dirs:
-      path = os.path.join(root, name)
-      stat = os.lstat(path)
-      perms = permissions_to_unix_name(stat)
-      logging.info(f"{name} {perms}")
-      
+def hash(file):
+  # BUF_SIZE is totally arbitrary, change for your app!
+  BUF_SIZE = 65536  # lets read stuff in 64kb chunks!
+
+  #md5 = hashlib.md5()
+  sha1 = hashlib.sha1()
+
+  with open(file, 'rb') as f:
+      while True:
+          data = f.read(BUF_SIZE)
+          if not data:
+              break
+          #md5.update(data)
+          sha1.update(data)
+
+  #print("MD5: {0}".format(md5.hexdigest()))
+  return format(sha1.hexdigest())
+class Metadata:
+
+  def get_metadata(self, root):
+    self.meta = logging.getLogger('metadata')
+    formatter = logging.Formatter(fmt="%(message)s")
+
+    file_handler = logging.FileHandler("metadata.log", mode='w')
+    file_handler.setFormatter(formatter)
+
+    self.meta.setLevel(logging.INFO)
+    self.meta.addHandler(file_handler)
+    #self.ola = logging.basicConfig(filename="metadata.log", filemode='w', format='%(message)s', level=logging.INFO)
+
+    ass = os.walk(root, topdown=True, onerror=None, followlinks=False)
+    for root, dirs, files in ass:
+      for name in files:
+        path = os.path.join(root, name)
+        stats = os.lstat(path)
+        perms = permissions_to_unix_name(stats)
+        owner = pwd.getpwuid(stats.st_uid).pw_name
+        owner_g = grp.getgrgid(stats.st_gid).gr_name
+        h = hash(path)
+        self.meta.info(f"{name} {perms} {owner} {owner_g} {h}")
+      for name in dirs:
+        path = os.path.join(root, name)
+        stats = os.lstat(path)
+        owner = pwd.getpwuid(stats.st_uid).pw_name
+        owner_g = grp.getgrgid(stats.st_gid).gr_name
+        perms = permissions_to_unix_name(stats)
+        self.meta.info(f"{name} {perms} {owner} {owner_g}")
+    os.chmod("metadata.log", stat.S_IRWXU | stat.S_IRGRP | stat.S_IROTH)    
+        
 def main(mountpoint, root):
-  get_metadata(root)
-  FUSE(FileSystem(root), mountpoint, nothreads=True, foreground=True, **{'allow_other': True, 'default_permissions': True})
+  metadata = Metadata()
+  metadata.get_metadata(root)
+  FUSE(FileSystem(root), mountpoint, nothreads=True, foreground=True, **{'allow_other': True})
 
 if __name__ == '__main__':
   main(sys.argv[2], sys.argv[1])
