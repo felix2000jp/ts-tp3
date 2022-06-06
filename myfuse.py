@@ -14,15 +14,13 @@ class FileSystem(Operations):
     self.root = root
     
     self.logs = logging.getLogger('log')
-    formatter = logging.Formatter(fmt="%(asctime)s %(message)s",
-                              datefmt="%a, %d %b %Y %H:%M:%S")
+    formatter = logging.Formatter(fmt="%(asctime)s %(message)s", datefmt="%a, %d %b %Y %H:%M:%S")
 
     file_handler = logging.FileHandler("logs.log")
     file_handler.setFormatter(formatter)
 
     self.logs.setLevel(logging.INFO)
     self.logs.addHandler(file_handler)
-    #self.logs.basicConfig(filename="log.log", format='%(asctime)s %(message)s', level=logging.INFO)
 
   # Returns the current full path for the mouted file system.
   def __full_path(self, partial):
@@ -44,10 +42,9 @@ class FileSystem(Operations):
 
   # Access a file
   def access(self, path, mode):
-    print('acedou', path, mode)
+    print('acedeu', path, mode)
     full_path = self.__full_path(path)
     if not os.access(full_path, mode):
-      print('ola')
       raise FuseOSError(errno.EACCES)
 
   # This fills in the elements of the "stat" structure. Required.
@@ -119,14 +116,9 @@ class FileSystem(Operations):
 
   # Open a file.
   def open(self, path, flags):
-    
     user_name, group_name = self.__logs_handler()
     self.logs.info(" USER " + user_name + " GROUP " + group_name + " OPEN " + path[1:])
     full_path = self.__full_path(path)
-    print(os.access(full_path, os.R_OK))
-    print(os.access(full_path, os.W_OK))
-    st = os.lstat(full_path)
-    print(permissions_to_unix_name(st))
     return os.open(full_path, flags)
   
   # Create a file.
@@ -145,7 +137,6 @@ class FileSystem(Operations):
 
   # Write in a file.
   def write(self, path, data, offset, fh):
-    print("write")
     user_name, group_name = self.__logs_handler()
     self.logs.info(" USER " + user_name + " GROUP " + group_name + " WRITE " + path[1:])
     os.lseek(fh, offset, os.SEEK_SET)
@@ -167,10 +158,11 @@ class FileSystem(Operations):
     self.logs.info(" USER " + user_name + " GROUP " + group_name + " RELEASE " + path[1:] + "\n")
     return os.close(fh)
 
-
   # Flush any dirty information to disk. (Not sure why we need this)
   def fsync(self, path, datasync, fh):
     return self.flush(path, fh)
+
+
 
 def permissions_to_unix_name(st):
     is_dir = 'd' if stat.S_ISDIR(st.st_mode) else '-'
@@ -178,25 +170,21 @@ def permissions_to_unix_name(st):
     perm = str(oct(st.st_mode)[-3:])
     return is_dir + ''.join(dic.get(x,x) for x in perm)
 
+
 def hash(file):
   # BUF_SIZE is totally arbitrary, change for your app!
   BUF_SIZE = 65536  # lets read stuff in 64kb chunks!
-
-  #md5 = hashlib.md5()
   sha1 = hashlib.sha1()
-
   with open(file, 'rb') as f:
-      while True:
-          data = f.read(BUF_SIZE)
-          if not data:
-              break
-          #md5.update(data)
-          sha1.update(data)
-
-  #print("MD5: {0}".format(md5.hexdigest()))
+    while True:
+      data = f.read(BUF_SIZE)
+      if not data:
+        break
+      #md5.update(data)
+      sha1.update(data)
   return format(sha1.hexdigest())
-class Metadata:
 
+class Metadata:
   def get_metadata(self, root):
     self.meta = logging.getLogger('metadata')
     formatter = logging.Formatter(fmt="%(message)s")
@@ -206,7 +194,6 @@ class Metadata:
 
     self.meta.setLevel(logging.INFO)
     self.meta.addHandler(file_handler)
-    #self.ola = logging.basicConfig(filename="metadata.log", filemode='w', format='%(message)s', level=logging.INFO)
 
     ass = os.walk(root, topdown=True, onerror=None, followlinks=False)
     for root, dirs, files in ass:
@@ -227,10 +214,12 @@ class Metadata:
         self.meta.info(f"{name} {perms} {owner} {owner_g}")
     os.chmod("metadata.log", stat.S_IRWXU | stat.S_IRGRP | stat.S_IROTH)    
         
+
+
 def main(mountpoint, root):
   metadata = Metadata()
   metadata.get_metadata(root)
-  FUSE(FileSystem(root), mountpoint, nothreads=True, foreground=True, **{'allow_other': True})
+  FUSE(FileSystem(root), mountpoint, nothreads=True, foreground=True, **{'allow_other': True, 'default_permissions': True})
 
 if __name__ == '__main__':
   main(sys.argv[2], sys.argv[1])

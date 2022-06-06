@@ -6,3 +6,94 @@ Mon, 06 Jun 2022 16:54:54  USER veloso GROUP veloso OPEN file1.txt
 Mon, 06 Jun 2022 16:54:54  USER veloso GROUP veloso READ file1.txt
 Mon, 06 Jun 2022 16:54:54  USER root GROUP root RELEASE file1.txt
 
+Mon, 06 Jun 2022 17:02:50  USER slave1 GROUP slave1 OPEN file3.txt
+Mon, 06 Jun 2022 17:02:50  USER slave1 GROUP slave1 READ file3.txt
+Mon, 06 Jun 2022 17:02:50  USER root GROUP root RELEASE file3.txt
+
+Mon, 06 Jun 2022 17:03:05  USER slave1 GROUP slave1 OPEN file2.txt
+Mon, 06 Jun 2022 17:03:05  USER slave1 GROUP slave1 CREATE .file2.txt.swp
+Mon, 06 Jun 2022 17:03:05  USER slave1 GROUP slave1 CREATE .file2.txt.swx
+Mon, 06 Jun 2022 17:03:05  USER root GROUP root RELEASE .file2.txt.swx
+
+Mon, 06 Jun 2022 17:03:05  USER root GROUP root RELEASE .file2.txt.swp
+
+Mon, 06 Jun 2022 17:03:05  USER slave1 GROUP slave1 CREATE .file2.txt.swp
+Mon, 06 Jun 2022 17:03:05  USER slave1 GROUP slave1 WRITE .file2.txt.swp
+Mon, 06 Jun 2022 17:03:05  USER root GROUP root RELEASE file2.txt
+
+Mon, 06 Jun 2022 17:03:05  USER slave1 GROUP slave1 OPEN file2.txt
+Mon, 06 Jun 2022 17:03:05  USER slave1 GROUP slave1 READ file2.txt
+Mon, 06 Jun 2022 17:03:05  USER root GROUP root RELEASE file2.txt
+
+Mon, 06 Jun 2022 17:03:09  USER slave1 GROUP slave1 WRITE .file2.txt.swp
+Mon, 06 Jun 2022 17:03:09  USER slave1 GROUP slave1 WRITE .file2.txt.swp
+Mon, 06 Jun 2022 17:04:23  USER root GROUP root RELEASE .file2.txt.swp
+
+Mon, 06 Jun 2022 17:04:29  USER slave1 GROUP slave1 OPEN file1.txt
+Mon, 06 Jun 2022 17:04:29  USER slave1 GROUP slave1 CREATE .file1.txt.swp
+Mon, 06 Jun 2022 17:04:29  USER slave1 GROUP slave1 CREATE .file1.txt.swx
+Mon, 06 Jun 2022 17:04:29  USER root GROUP root RELEASE .file1.txt.swx
+
+Mon, 06 Jun 2022 17:04:29  USER root GROUP root RELEASE .file1.txt.swp
+
+Mon, 06 Jun 2022 17:04:29  USER slave1 GROUP slave1 CREATE .file1.txt.swp
+Mon, 06 Jun 2022 17:04:29  USER slave1 GROUP slave1 WRITE .file1.txt.swp
+Mon, 06 Jun 2022 17:04:29  USER root GROUP root RELEASE file1.txt
+
+Mon, 06 Jun 2022 17:04:29  USER slave1 GROUP slave1 OPEN file1.txt
+Mon, 06 Jun 2022 17:04:29  USER slave1 GROUP slave1 READ file1.txt
+Mon, 06 Jun 2022 17:04:29  USER root GROUP root RELEASE file1.txt
+
+Mon, 06 Jun 2022 17:04:32  USER root GROUP root RELEASE .file1.txt.swp
+
+Mon, 06 Jun 2022 17:06:06  USER slave1 GROUP slave1 OPEN file3.txt
+Mon, 06 Jun 2022 17:06:06  USER slave1 GROUP slave1 CREATE .file3.txt.swp
+Mon, 06 Jun 2022 17:06:06  USER slave1 GROUP slave1 CREATE .file3.txt.swx
+Mon, 06 Jun 2022 17:06:06  USER root GROUP root RELEASE .file3.txt.swx
+
+Mon, 06 Jun 2022 17:06:06  USER root GROUP root RELEASE .file3.txt.swp
+
+Mon, 06 Jun 2022 17:06:06  USER slave1 GROUP slave1 CREATE .file3.txt.swp
+Mon, 06 Jun 2022 17:06:06  USER slave1 GROUP slave1 WRITE .file3.txt.swp
+Mon, 06 Jun 2022 17:06:06  USER root GROUP root RELEASE file3.txt
+
+Mon, 06 Jun 2022 17:06:06  USER slave1 GROUP slave1 OPEN file3.txt
+Mon, 06 Jun 2022 17:06:06  USER slave1 GROUP slave1 READ file3.txt
+Mon, 06 Jun 2022 17:06:06  USER root GROUP root RELEASE file3.txt
+
+Mon, 06 Jun 2022 17:06:10  USER slave1 GROUP slave1 WRITE .file3.txt.swp
+Mon, 06 Jun 2022 17:06:10  USER slave1 GROUP slave1 WRITE .file3.txt.swp
+Mon, 06 Jun 2022 17:06:33  USER root GROUP root RELEASE .file3.txt.swp
+
+Mon, 06 Jun 2022 17:11:25  USER slave1 GROUP slave1 OPEN file1.txt
+Mon, 06 Jun 2022 17:11:25  USER slave1 GROUP slave1 READ file1.txt
+Mon, 06 Jun 2022 17:11:25  USER root GROUP root RELEASE file1.txt
+
+Mon, 06 Jun 2022 17:11:44  USER slave1 GROUP slave1 OPEN file2.txt
+Mon, 06 Jun 2022 17:11:44  USER slave1 GROUP slave1 READ file2.txt
+Mon, 06 Jun 2022 17:11:44  USER root GROUP root RELEASE file2.txt
+
+Mon, 06 Jun 2022 17:11:52  USER slave1 GROUP slave1 OPEN file3.txt
+Mon, 06 Jun 2022 17:11:52  USER slave1 GROUP slave1 READ file3.txt
+Mon, 06 Jun 2022 17:11:52  USER root GROUP root RELEASE file3.txt
+
+Mon, 06 Jun 2022 17:12:54  USER slave1 GROUP slave1 OPEN file3.txt
+Mon, 06 Jun 2022 17:12:54  USER slave1 GROUP slave1 READ file3.txt
+Mon, 06 Jun 2022 17:12:54  USER root GROUP root RELEASE file3.txt
+
+Mon, 06 Jun 2022 17:13:02  USER slave1 GROUP slave1 OPEN file1.txt
+Mon, 06 Jun 2022 17:13:02  USER slave1 GROUP slave1 READ file1.txt
+Mon, 06 Jun 2022 17:13:02  USER root GROUP root RELEASE file1.txt
+
+Mon, 06 Jun 2022 17:21:10  USER slave1 GROUP slave1 OPEN file1.txt
+Mon, 06 Jun 2022 17:21:10  USER slave1 GROUP slave1 READ file1.txt
+Mon, 06 Jun 2022 17:21:10  USER root GROUP root RELEASE file1.txt
+
+Mon, 06 Jun 2022 18:26:09  USER slave1 GROUP slave1 OPEN file1.txt
+Mon, 06 Jun 2022 18:26:09  USER slave1 GROUP slave1 READ file1.txt
+Mon, 06 Jun 2022 18:26:09  USER root GROUP root RELEASE file1.txt
+
+Mon, 06 Jun 2022 18:26:13  USER slave1 GROUP slave1 OPEN file2.txt
+Mon, 06 Jun 2022 18:26:13  USER slave1 GROUP slave1 READ file2.txt
+Mon, 06 Jun 2022 18:26:13  USER root GROUP root RELEASE file2.txt
+

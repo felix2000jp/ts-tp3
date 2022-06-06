@@ -131,7 +131,18 @@ class Passthrough(Operations):
 
 
 def main(mountpoint, root):
-    FUSE(Passthrough(root), mountpoint, nothreads=True, foreground=True, **{'allow_other': True})
+  print(os.O_RDONLY)
+  print(os.O_WRONLY)
+  print(os.O_RDWR)
+  print(os.O_NONBLOCK)
+  print(os.O_APPEND)
+  print(os.O_CREAT)
+  print(os.O_TRUNC)
+  print(os.O_EXLOCK)
+  print(os.O_DIRECT)
+  print(os.O_FSYNC)
+  print(os.O_NOFOLLOW)
+  #FUSE(Passthrough(root), mountpoint, nothreads=True, foreground=True, **{'allow_other': True})
 
 if __name__ == '__main__':
-    main(sys.argv[2], sys.argv[1])
+  main(sys.argv[2], sys.argv[1])
