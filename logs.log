@@ -1,0 +1,8 @@
+Mon, 06 Jun 2022 16:54:46  USER veloso GROUP veloso OPEN file2.txt
+Mon, 06 Jun 2022 16:54:46  USER veloso GROUP veloso READ file2.txt
+Mon, 06 Jun 2022 16:54:46  USER root GROUP root RELEASE file2.txt
+
+Mon, 06 Jun 2022 16:54:54  USER veloso GROUP veloso OPEN file1.txt
+Mon, 06 Jun 2022 16:54:54  USER veloso GROUP veloso READ file1.txt
+Mon, 06 Jun 2022 16:54:54  USER root GROUP root RELEASE file1.txt
+
