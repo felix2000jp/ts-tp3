@@ -1,0 +1,7 @@
+Mon, 06 Jun 2022 20:40:40 INFO      USER felix GROUP felix OPEN file1.txt
+Mon, 06 Jun 2022 20:40:40 INFO      USER felix GROUP felix READ file1.txt
+Mon, 06 Jun 2022 20:40:40 INFO      USER felix GROUP felix OPEN file2.txt
+Mon, 06 Jun 2022 20:40:40 INFO      USER felix GROUP felix OPEN file3.txt
+Mon, 06 Jun 2022 20:40:40 INFO      USER felix GROUP felix READ file3.txt
+Mon, 06 Jun 2022 20:40:40 INFO      USER felix GROUP felix OPEN file4.txt
+Mon, 06 Jun 2022 20:40:40 INFO      USER felix GROUP felix OPEN folder/folderfile.txt
