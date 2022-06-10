@@ -6,6 +6,7 @@ import grp, pwd
 import stat
 import tkinter
 import pyotp
+import qrcode
 from fuse import FUSE, FuseOSError, Operations, fuse_get_context
 
 class FileSystem(Operations):
@@ -22,7 +23,13 @@ class FileSystem(Operations):
     self.logs.addHandler(file_handler)
 
     # OTP
-    self.totp = pyotp.TOTP("JBSWY3DPEHPK3PXP")
+    secret = pyotp.random_base32()
+    self.totp = pyotp.TOTP(secret)
+    url = self.totp.provisioning_uri(name='FUSE', issuer_name='Secure App')
+    img = qrcode.make(url)
+    img.save('qr_googleAUTH.png')
+    #self.totp = pyotp.TOTP("JBSWY3DPEHPK3PXP")
+    
     self.access_permission = False
 
   # Returns the current full path for the mouted file system.
@@ -44,6 +51,7 @@ class FileSystem(Operations):
      
     print(self.totp.now())
     window = tkinter.Tk()
+    window.title('')
     window.geometry("200x200")
     label  = tkinter.Label(text="Access Code")
     label.place(relx=0.5, rely=0.4, anchor=tkinter.CENTER)
