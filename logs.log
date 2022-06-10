@@ -1,7 +1,9 @@
-Mon, 06 Jun 2022 20:40:40 INFO      USER felix GROUP felix OPEN file1.txt
-Mon, 06 Jun 2022 20:40:40 INFO      USER felix GROUP felix READ file1.txt
-Mon, 06 Jun 2022 20:40:40 INFO      USER felix GROUP felix OPEN file2.txt
-Mon, 06 Jun 2022 20:40:40 INFO      USER felix GROUP felix OPEN file3.txt
-Mon, 06 Jun 2022 20:40:40 INFO      USER felix GROUP felix READ file3.txt
-Mon, 06 Jun 2022 20:40:40 INFO      USER felix GROUP felix OPEN file4.txt
-Mon, 06 Jun 2022 20:40:40 INFO      USER felix GROUP felix OPEN folder/folderfile.txt
+Fri, 10 Jun 2022 15:54:44 WARNING   USER slave1 GROUP slave1 TRIED TO OPEN file3.txt
+Fri, 10 Jun 2022 15:54:49 INFO      USER slave1 GROUP slave1 OPEN file2.txt
+Fri, 10 Jun 2022 15:54:49 INFO      USER slave1 GROUP slave1 READ file2.txt
+Fri, 10 Jun 2022 15:55:06 INFO      USER slave1 GROUP slave1 OPEN file1.txt
+Fri, 10 Jun 2022 15:55:06 INFO      USER slave1 GROUP slave1 READ file1.txt
+Fri, 10 Jun 2022 16:13:10 INFO      USER slave1 GROUP slave1 OPEN file2.txt
+Fri, 10 Jun 2022 16:13:10 INFO      USER slave1 GROUP slave1 READ file2.txt
+Fri, 10 Jun 2022 16:13:20 INFO      USER slave1 GROUP slave1 OPEN file1.txt
+Fri, 10 Jun 2022 16:13:20 INFO      USER slave1 GROUP slave1 READ file1.txt

@@ -1,10 +1,10 @@
 import os
 import sys
-import hashlib
 import errno
 import logging
 import grp, pwd 
 import stat
+import pyotp
 from fuse import FUSE, FuseOSError, Operations, fuse_get_context
 
 class FileSystem(Operations):
@@ -21,6 +21,8 @@ class FileSystem(Operations):
     self.logs.setLevel(logging.INFO)
     self.logs.addHandler(file_handler)
 
+    self.totp = pyotp.TOTP("JBSWY3DPEHPK3PXP")
+
   # Returns the current full path for the mouted file system.
   def __full_path(self, partial):
     if partial.startswith("/"):
@@ -32,6 +34,15 @@ class FileSystem(Operations):
     group_name = grp.getgrgid(gid).gr_name
     user_name = pwd.getpwuid(uid).pw_name
     return user_name, group_name
+
+  def __permit_file(self, file, user):
+    print(f"Utilizador {user} quer aceder ao ficheiro {file}. Insira o OTP para permitir, ou 0 para nao permitir")
+    print(self.totp.now())
+    opt = input("Option")
+    if self.totp.verify(opt):
+      return True
+    else:
+      return False  
 
   
   def __permissions_to_unix_name(self, full_path):
