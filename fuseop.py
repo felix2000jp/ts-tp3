@@ -206,24 +206,27 @@ class FileSystem(Operations):
     other = permissions[6:9] # other
 
     if uid == st.st_uid: # owner
-      if owner == "---":
+      if owner == "---" and not self.__permit_file():
         self.logs.warning(" USER " + user_name + " GROUP " + group_name + " TRIED TO OPEN " + path[1:])
         raise FuseOSError(errno.EACCES)
       else:
+        self.access_permission = True
         self.logs.info(" USER " + user_name + " GROUP " + group_name + " OPEN " + path[1:])
         return os.open(full_path, flags)
     elif gid == st.st_gid: # group
-      if group == "---":
+      if group == "---" and not self.__permit_file():
         self.logs.warning(" USER " + user_name + " GROUP " + group_name + " TRIED TO OPEN " + path[1:])
         raise FuseOSError(errno.EACCES)
       else:
+        self.access_permission = True
         self.logs.info(" USER " + user_name + " GROUP " + group_name + " OPEN " + path[1:])
         return os.open(full_path, flags)
     else: # other
-      if other == "---":
+      if other == "---" and not self.__permit_file():
         self.logs.warning(" USER " + user_name + " GROUP " + group_name + " TRIED TO OPEN " + path[1:])
         raise FuseOSError(errno.EACCES)
       else:
+        self.access_permission = True
         self.logs.info(" USER " + user_name + " GROUP " + group_name + " OPEN " + path[1:])
         return os.open(full_path, flags)
 
@@ -253,26 +256,29 @@ class FileSystem(Operations):
     group = permissions[3:6] # group
     other = permissions[6:9] # other
     if uid == st.st_uid: # owner
-      if owner[0] != "r":
+      if owner[0] != "r" and not self.access_permission:
         self.logs.warning(" USER " + user_name + " GROUP " + group_name + " TRIED TO READ " + path[1:])
         raise FuseOSError(errno.EACCES)
       else:
+        self.access_permission = False
         self.logs.info(" USER " + user_name + " GROUP " + group_name + " READ " + path[1:])
         os.lseek(fh, offset, os.SEEK_SET)
         return os.read(fh, size)
     elif gid == st.st_gid: # group
-      if group[0] != "r":
+      if group[0] != "r" and not self.access_permission:
         self.logs.warning(" USER " + user_name + " GROUP " + group_name + " TRIED TO READ " + path[1:])
         raise FuseOSError(errno.EACCES)
       else:
+        self.access_permission = False
         self.logs.info(" USER " + user_name + " GROUP " + group_name + " READ " + path[1:])
         os.lseek(fh, offset, os.SEEK_SET)
         return os.read(fh, size)
     else: # other
-      if other[0] != "r":
+      if other[0] != "r" and not self.access_permission:
         self.logs.warning(" USER " + user_name + " GROUP " + group_name + " TRIED TO READ " + path[1:])
         raise FuseOSError(errno.EACCES)
       else:
+        self.access_permission = False
         self.logs.info(" USER " + user_name + " GROUP " + group_name + " READ " + path[1:])
         os.lseek(fh, offset, os.SEEK_SET)
         return os.read(fh, size)

@@ -1,0 +1,18 @@
+Sat, 11 Jun 2022 01:09:35 INFO      USER slave1 GROUP slave1 OPEN file2.txt
+Sat, 11 Jun 2022 01:09:35 INFO      USER slave1 GROUP slave1 READ file2.txt
+Sat, 11 Jun 2022 01:09:48 INFO      USER slave1 GROUP slave1 OPEN file2.txt
+Sat, 11 Jun 2022 01:09:48 INFO      USER slave1 GROUP slave1 WRITE file2.txt
+Sat, 11 Jun 2022 01:10:06 WARNING   USER slave1 GROUP slave1 TRIED TO OPEN file3.txt
+Sat, 11 Jun 2022 01:10:15 INFO      USER slave1 GROUP slave1 OPEN file3.txt
+Sat, 11 Jun 2022 01:10:15 INFO      USER slave1 GROUP slave1 READ file3.txt
+Sat, 11 Jun 2022 01:10:31 WARNING   USER slave1 GROUP slave1 TRIED TO OPEN file3.txt
+Sat, 11 Jun 2022 01:10:42 INFO      USER slave1 GROUP slave1 OPEN file3.txt
+Sat, 11 Jun 2022 01:10:43 INFO      USER slave1 GROUP slave1 WRITE file3.txt
+Sat, 11 Jun 2022 01:10:55 WARNING   USER slave1 GROUP slave1 TRIED TO OPEN file3.txt
+Sat, 11 Jun 2022 01:11:02 WARNING   USER slave1 GROUP slave1 TRIED TO OPEN file3.txt
+Sat, 11 Jun 2022 01:11:12 INFO      USER slave1 GROUP slave1 OPEN file3.txt
+Sat, 11 Jun 2022 01:11:12 INFO      USER slave1 GROUP slave1 READ file3.txt
+Sat, 11 Jun 2022 01:11:29 INFO      USER slave1 GROUP slave1 OPEN file2.txt
+Sat, 11 Jun 2022 01:11:29 INFO      USER slave1 GROUP slave1 WRITE file2.txt
+Sat, 11 Jun 2022 01:11:34 INFO      USER slave1 GROUP slave1 OPEN file2.txt
+Sat, 11 Jun 2022 01:11:34 INFO      USER slave1 GROUP slave1 READ file2.txt
