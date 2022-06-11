@@ -28,8 +28,8 @@ class FileSystem(Operations):
     url = self.totp.provisioning_uri(name='FUSE', issuer_name='Secure App')
     img = qrcode.make(url)
     img.save('qr_googleAUTH.png')
-    #self.totp = pyotp.TOTP("JBSWY3DPEHPK3PXP")
     
+    # Flgas
     self.access_permission = False
 
   # Returns the current full path for the mouted file system.
@@ -78,7 +78,7 @@ class FileSystem(Operations):
 
 
 
-  # Clean the resources used by the filesystem. It is used when the we exit the program.  
+# Clean the resources used by the filesystem. It is used when the we exit the program.  
   def destroy(self, path):
     pass
 
@@ -109,15 +109,14 @@ class FileSystem(Operations):
     full_path = self.__full_path(path)
     user_name, group_name = self.__logs_handler()
     uid, _, _ = fuse_get_context()
-    st = os.lstat(full_path)
-
+    st = os.lstat(self.root)
     if uid == st.st_uid:
       self.logs.info(" USER " + user_name + " GROUP " + group_name + " CHANGED PERMISSIONS ON " + path[1:])
       return os.chmod(full_path, mode)
     else:
       self.logs.warning(" USER " + user_name + " GROUP " + group_name + " TRIED TO CHANGE PERMISSIONS ON " + path[1:])
-      raise FuseOSError(errno.EACCES)
-
+      raise FuseOSError(errno.EPERM)
+    
 
   # Change files ownership (we need to look at this).
   def chown(self, path, uid, gid):
@@ -129,10 +128,29 @@ class FileSystem(Operations):
 
   def rmdir(self, path):
     full_path = self.__full_path(path)
-    return os.rmdir(full_path)
+    user_name, group_name = self.__logs_handler()
+    uid, _, _ = fuse_get_context()
+    st = os.lstat(self.root)
+    if uid == st.st_uid:
+      self.logs.info(" USER " + user_name + " GROUP " + group_name + " REMOVED DIR " + path[1:])
+      return os.rmdir(full_path)
+    else:
+      self.logs.warning(" USER " + user_name + " GROUP " + group_name + " TRIED TO REMOVE DIR " + path[1:])
+      raise FuseOSError(errno.EPERM)
 
+    
   def mkdir(self, path, mode):
-    return os.mkdir(self.__full_path(path), mode)
+    full_path = self.__full_path(path)
+    user_name, group_name = self.__logs_handler()
+    uid, _, _ = fuse_get_context()
+    st = os.lstat(self.root)
+    if uid == st.st_uid:
+      self.logs.info(" USER " + user_name + " GROUP " + group_name + " CREATED DIR " + path[1:])
+      return os.mkdir(full_path, mode)
+    else:
+      self.logs.warning(" USER " + user_name + " GROUP " + group_name + " TRIED TO CREATE DIR " + path[1:])
+      raise FuseOSError(errno.EPERM)
+    
 
   def utimens(self, path, times=None):
     return os.utime(self.__full_path(path), times)
@@ -156,7 +174,17 @@ class FileSystem(Operations):
   
   # Unlinks a file. (can remove).
   def unlink(self, path):
-    return os.unlink(self.__full_path(path))
+    full_path = self.__full_path(path)
+    user_name, group_name = self.__logs_handler()
+    uid, _, _ = fuse_get_context()
+    st = os.lstat(self.root)
+    if uid == st.st_uid:
+      self.logs.info(" USER " + user_name + " GROUP " + group_name + " REMOVE " + path[1:])
+      return os.unlink(full_path)
+    else:
+      self.logs.warning(" USER " + user_name + " GROUP " + group_name + " TRIED TO REMOVE " + path[1:])
+      raise FuseOSError(errno.EPERM)
+   
 
   # This is for statistics on the filesystem.
   def statfs(self, path):
@@ -171,7 +199,6 @@ class FileSystem(Operations):
     full_path = self.__full_path(path)
     
     # Permissoes para abir
-    self.access_permission = False
     permissions, st = self.__permissions_to_unix_name(full_path)
     uid, gid, _ = fuse_get_context()
     owner = permissions[0:3] # owner
@@ -179,42 +206,41 @@ class FileSystem(Operations):
     other = permissions[6:9] # other
 
     if uid == st.st_uid: # owner
-      if owner == "---" and not self.__permit_file():
-        self.access_permission = False
+      if owner == "---":
         self.logs.warning(" USER " + user_name + " GROUP " + group_name + " TRIED TO OPEN " + path[1:])
         raise FuseOSError(errno.EACCES)
       else:
-        self.access_permission = True
         self.logs.info(" USER " + user_name + " GROUP " + group_name + " OPEN " + path[1:])
         return os.open(full_path, flags)
     elif gid == st.st_gid: # group
-      if group == "---" and not self.__permit_file():
-        self.access_permission = False
+      if group == "---":
         self.logs.warning(" USER " + user_name + " GROUP " + group_name + " TRIED TO OPEN " + path[1:])
         raise FuseOSError(errno.EACCES)
       else:
-        self.access_permission = True
         self.logs.info(" USER " + user_name + " GROUP " + group_name + " OPEN " + path[1:])
         return os.open(full_path, flags)
     else: # other
-      if other == "---" and not self.__permit_file():
-        self.access_permission = False
+      if other == "---":
         self.logs.warning(" USER " + user_name + " GROUP " + group_name + " TRIED TO OPEN " + path[1:])
         raise FuseOSError(errno.EACCES)
       else:
-        self.access_permission = True
         self.logs.info(" USER " + user_name + " GROUP " + group_name + " OPEN " + path[1:])
         return os.open(full_path, flags)
 
   
   # Create a file.
   def create(self, path, mode, fi=None):
-    user_name, group_name = self.__logs_handler()
     full_path = self.__full_path(path)
+    user_name, group_name = self.__logs_handler()
+    uid, _, _ = fuse_get_context()
+    st = os.lstat(self.root)
+    if uid == st.st_uid:
+      self.logs.info(" USER " + user_name + " GROUP " + group_name + " CREATE " + path[1:])
+      return os.open(full_path, os.O_WRONLY | os.O_CREAT, mode)
+    else:
+      self.logs.warning(" USER " + user_name + " GROUP " + group_name + " TRIED TO CREATE " + path[1:])
+      raise FuseOSError(errno.EACCES)
     
-    self.logs.info(" USER " + user_name + " GROUP " + group_name + " CREATE " + path[1:])
-    return os.open(full_path, os.O_WRONLY | os.O_CREAT, mode)
-  
   # Read a file.
   def read(self, path, size, offset, fh):
     user_name, group_name = self.__logs_handler()
@@ -227,29 +253,26 @@ class FileSystem(Operations):
     group = permissions[3:6] # group
     other = permissions[6:9] # other
     if uid == st.st_uid: # owner
-      if owner[0] != "r" and not self.access_permission:
+      if owner[0] != "r":
         self.logs.warning(" USER " + user_name + " GROUP " + group_name + " TRIED TO READ " + path[1:])
         raise FuseOSError(errno.EACCES)
       else:
-        self.access_permission = False
         self.logs.info(" USER " + user_name + " GROUP " + group_name + " READ " + path[1:])
         os.lseek(fh, offset, os.SEEK_SET)
         return os.read(fh, size)
     elif gid == st.st_gid: # group
-      if group[0] != "r" and not self.access_permission:
+      if group[0] != "r":
         self.logs.warning(" USER " + user_name + " GROUP " + group_name + " TRIED TO READ " + path[1:])
         raise FuseOSError(errno.EACCES)
       else:
-        self.access_permission = False
         self.logs.info(" USER " + user_name + " GROUP " + group_name + " READ " + path[1:])
         os.lseek(fh, offset, os.SEEK_SET)
         return os.read(fh, size)
     else: # other
-      if other[0] != "r" and not self.access_permission:
+      if other[0] != "r":
         self.logs.warning(" USER " + user_name + " GROUP " + group_name + " TRIED TO READ " + path[1:])
         raise FuseOSError(errno.EACCES)
       else:
-        self.access_permission = False
         self.logs.info(" USER " + user_name + " GROUP " + group_name + " READ " + path[1:])
         os.lseek(fh, offset, os.SEEK_SET)
         return os.read(fh, size)
