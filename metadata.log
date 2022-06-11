@@ -1,5 +1,5 @@
-file2.txt - felix felix 7539654163279962078
-file3.txt - felix felix -8931148280621504785
-file1.txt - felix felix 429409931210119760
-folder d felix felix
-folderfile.txt - felix felix 4393500825994709648
+file3.txt -rw-rw-r-- veloso veloso 6736228667179574077
+file1.txt -rw-rw-r-- veloso veloso -3034081918017109902
+file2.txt -rw-rw-r-- veloso veloso 2121002091302374871
+folder drwxrwxr-x veloso veloso
+folderfile.txt -rw-rw-r-- veloso veloso 1787073157676283046

@@ -361,7 +361,7 @@ class Metadata:
       for name in files:
         path = os.path.join(root, name)
         stats = os.lstat(path)
-        perms = self.__permissions_to_unix_name(stats)[0]
+        perms = self.__permissions_to_unix_name(stats)
         owner = pwd.getpwuid(stats.st_uid).pw_name
         owner_g = grp.getgrgid(stats.st_gid).gr_name
         h = hash(path)
@@ -371,7 +371,7 @@ class Metadata:
         stats = os.lstat(path)
         owner = pwd.getpwuid(stats.st_uid).pw_name
         owner_g = grp.getgrgid(stats.st_gid).gr_name
-        perms = self.__permissions_to_unix_name(stats)[0]
+        perms = self.__permissions_to_unix_name(stats)
         self.meta.info(f"{name} {perms} {owner} {owner_g}")
     os.chmod("metadata.log", stat.S_IRWXU | stat.S_IRGRP | stat.S_IROTH)
 
