@@ -369,7 +369,6 @@ class Metadata:
   def get_metadata(self, root):
     self.meta = logging.getLogger('metadata')
     formatter = logging.Formatter(fmt="%(message)s")
-
     file_handler = logging.FileHandler("metadata.log", mode='w')
     file_handler.setFormatter(formatter)
 
