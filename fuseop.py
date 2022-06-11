@@ -7,6 +7,7 @@ import stat
 import tkinter
 import pyotp
 import qrcode
+import hashlib
 from fuse import FUSE, FuseOSError, Operations, fuse_get_context
 
 class FileSystem(Operations):
@@ -340,6 +341,25 @@ class FileSystem(Operations):
 
 
 class Metadata:
+
+  def _hash(self, file):
+    # BUF_SIZE is totally arbitrary, change for your app!
+    BUF_SIZE = 65536  # lets read stuff in 64kb chunks!
+
+    #md5 = hashlib.md5()
+    sha1 = hashlib.sha1()
+
+    with open(file, 'rb') as f:
+        while True:
+            data = f.read(BUF_SIZE)
+            if not data:
+                break
+            #md5.update(data)
+            sha1.update(data)
+
+    #print("MD5: {0}".format(md5.hexdigest()))
+    return format(sha1.hexdigest())
+
   def __permissions_to_unix_name(self, st):
     is_dir = 'd' if stat.S_ISDIR(st.st_mode) else '-'
     dic = {'7':'rwx', '6' :'rw-', '5' : 'r-x', '4':'r--', '0': '---'}
@@ -364,7 +384,7 @@ class Metadata:
         perms = self.__permissions_to_unix_name(stats)
         owner = pwd.getpwuid(stats.st_uid).pw_name
         owner_g = grp.getgrgid(stats.st_gid).gr_name
-        h = hash(path)
+        h = self._hash(path)
         self.meta.info(f"{name} {perms} {owner} {owner_g} {h}")
       for name in dirs:
         path = os.path.join(root, name)
